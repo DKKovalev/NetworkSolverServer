@@ -3,6 +3,7 @@ package com.dkkovalev;
 
 import com.dkkovalev.MathHandlers.LinearEquationSolver;
 import com.dkkovalev.MathHandlers.QuadraticEquationSolver;
+import com.dkkovalev.MathHandlers.RandomBetweenTwoNumbers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,7 +16,6 @@ import java.util.Arrays;
 public class ServerHandler {
     private ServerSocket serverSocket;
     private Socket socket;
-    private InputStreamReader inputStreamReader;
     private BufferedReader bufferedReader;
     private String message;
 
@@ -23,42 +23,51 @@ public class ServerHandler {
 
     private QuadraticEquationSolver quadraticEquationSolver;
     private LinearEquationSolver linearEquationSolver;
+    private RandomBetweenTwoNumbers randomBetweenTwoNumbers;
 
     public ServerHandler() {
         quadraticEquationSolver = new QuadraticEquationSolver();
         linearEquationSolver = new LinearEquationSolver();
+        randomBetweenTwoNumbers = new RandomBetweenTwoNumbers();
     }
 
     public void handleMessage(int port) throws IOException {
+        BufferedReader in = null;
+        PrintWriter out = null;
+
+        ServerSocket serverSocket = null;
+        Socket clientSocket = null;
+
         serverSocket = new ServerSocket(port);
-
         System.out.println("Server is online. Listening to the port: " + port);
-
         while (true) {
-            socket = serverSocket.accept();
-            inputStreamReader = new InputStreamReader(socket.getInputStream());
-            bufferedReader = new BufferedReader(inputStreamReader);
+            clientSocket = serverSocket.accept();
 
-            printWriter = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
 
-            message = bufferedReader.readLine();
+            String input;
+            input = in.readLine();
 
-            String[] splitMessage = message.split(",");
+            String[]splitMessage = input.split(",");
 
             if (splitMessage[0].equals("Quadratic")) {
 
                 String response = quadraticEquationSolver.solve(Double.valueOf(splitMessage[1]), Double.valueOf(splitMessage[2]), Double.valueOf(splitMessage[3]));
-
-                printWriter.write(response);
-                System.out.println(quadraticEquationSolver.solve(Double.valueOf(splitMessage[1]), Double.valueOf(splitMessage[2]), Double.valueOf(splitMessage[3])));
+                System.out.println(response);
+                out.println(response);
             } else if (splitMessage[0].equals("Linear")) {
-                System.out.println(Arrays.toString(linearEquationSolver.solve(Double.valueOf(splitMessage[1]), Double.valueOf(splitMessage[2]))));
+                String response = Arrays.toString(linearEquationSolver.solve(Double.valueOf(splitMessage[1]), Double.valueOf(splitMessage[2])));
+                System.out.println(response);
+                out.println(response);
             } else if (splitMessage[0].equals("Random")) {
-
+                String response = randomBetweenTwoNumbers.getRandom(Integer.valueOf(splitMessage[1]), Integer.valueOf(splitMessage[2]));
+                System.out.println(response);
+                out.println(response);
             }
 
-            inputStreamReader.close();
-            socket.close();
+            out.println(splitMessage[0]);
+            System.out.println(input);
         }
     }
 }
