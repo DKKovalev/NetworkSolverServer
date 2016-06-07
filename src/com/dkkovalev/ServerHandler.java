@@ -61,7 +61,7 @@ public class ServerHandler {
                 System.out.println(response);
                 out.println(response);
             } else if (splitMessage[0].equals("Random")) {
-                String response = randomBetweenTwoNumbers.getRandom(Integer.valueOf(splitMessage[1]), Integer.valueOf(splitMessage[2]));
+                String response = randomBetweenTwoNumbers.getRandom(Double.valueOf(splitMessage[1]), Double.valueOf(splitMessage[2]));
                 System.out.println(response);
                 out.println(response);
             }
